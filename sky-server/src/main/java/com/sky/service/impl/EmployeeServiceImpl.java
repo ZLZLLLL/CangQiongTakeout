@@ -115,11 +115,12 @@ public class EmployeeServiceImpl implements EmployeeService {
         long total = page.getTotal();
         List<Employee> result = page.getResult();
 
-        return new PageResult(total,result);
+        return new PageResult(total, result);
     }
 
     /**
      * 启用禁用员工账号
+     *
      * @param status
      * @param id
      */
@@ -134,6 +135,28 @@ public class EmployeeServiceImpl implements EmployeeService {
                 .status(status)
                 .id(id)
                 .build();
+        employeeMapper.update(employee);
+    }
+
+
+    /**
+     * 根据id查询员工数据
+     *
+     * @param id
+     * @return
+     */
+    public Employee selectById(Long id) {
+        Employee employee=employeeMapper.selectById(id);
+        return employee;
+    }
+
+    /**
+     * 修改员工数据
+     * @param employeeDTO
+     */
+    public void update(EmployeeDTO employeeDTO) {
+        Employee employee=new Employee();
+        BeanUtils.copyProperties(employeeDTO,employee);
         employeeMapper.update(employee);
     }
 
