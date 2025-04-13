@@ -1,16 +1,20 @@
 package com.sky.service.impl;
 
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import com.sky.constant.MessageConstant;
 import com.sky.constant.PasswordConstant;
 import com.sky.constant.StatusConstant;
 import com.sky.context.BaseContext;
 import com.sky.dto.EmployeeDTO;
 import com.sky.dto.EmployeeLoginDTO;
+import com.sky.dto.EmployeePageQueryDTO;
 import com.sky.entity.Employee;
 import com.sky.exception.AccountLockedException;
 import com.sky.exception.AccountNotFoundException;
 import com.sky.exception.PasswordErrorException;
 import com.sky.mapper.EmployeeMapper;
+import com.sky.result.PageResult;
 import com.sky.service.EmployeeService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class EmployeeServiceImpl implements EmployeeService {
@@ -64,13 +69,14 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     /**
      * 新增员工
+     *
      * @param employeeDTO
      */
     public void save(EmployeeDTO employeeDTO) {
         //TODO 对象的属性拷贝方法BeanUtils.copyProperties()
         //接收前端参数，将前端参数传递给实际属性值VO对象(对象的属性拷贝)
-        Employee employee=new Employee();
-        BeanUtils.copyProperties(employeeDTO,employee);
+        Employee employee = new Employee();
+        BeanUtils.copyProperties(employeeDTO, employee);
 
         //设置DTO中没有的部分属性(使用常量类)
         //设置状态
@@ -89,6 +95,27 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         //调用持久层
         employeeMapper.insert(employee);
+    }
+
+    /**
+     * 分页查询
+     *
+     * @param employeePageQueryDTO
+     * @return
+     */
+    public PageResult pageQuery(EmployeePageQueryDTO employeePageQueryDTO) {
+        //传统方式进行分页查询,使用拦截器，将sql语句进行动态拼接，例如拼接limit后面的参数
+        //并且还要基于MySQL，实现类似于  select * from employee limit #{0},#{10}
+
+        //使用PageHelper分页插件进行查询,相当于省略了 "limit #{0},#{10}"
+        //开始查询 PageHelper.startPage(页码, 每页的记录数);
+        PageHelper.startPage(employeePageQueryDTO.getPage(), employeePageQueryDTO.getPageSize());
+
+        Page<Employee> page = employeeMapper.PageQuery(employeePageQueryDTO);
+        long total = page.getTotal();
+        List<Employee> result = page.getResult();
+
+        return new PageResult(total,result);
     }
 
 }
