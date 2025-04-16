@@ -85,13 +85,13 @@ public class EmployeeServiceImpl implements EmployeeService {
         //设置密码,需要进行md5加密
         employee.setPassword(DigestUtils.md5DigestAsHex(PasswordConstant.DEFAULT_PASSWORD.getBytes()));
 
-        //设置创建时间，修改时间
+        /*//设置创建时间，修改时间
         employee.setCreateTime(LocalDateTime.now());
         employee.setUpdateTime(LocalDateTime.now());
 
         //设置创建人，修改人
         employee.setCreateUser(BaseContext.getCurrentId());
-        employee.setUpdateUser(BaseContext.getCurrentId());
+        employee.setUpdateUser(BaseContext.getCurrentId());*/
 
         //调用持久层
         employeeMapper.insert(employee);
