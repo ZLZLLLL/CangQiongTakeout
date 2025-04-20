@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sky.mapper.SetmealDishMapper">
+
+
+    <select id="selectById" resultType="java.lang.Long">
+        Select count(*) from setmeal_dish
+        <where>
+            <if test="id!=null">
+                dish_id=#{id}
+            </if>
+        </where>
+    </select>
+</mapper>
