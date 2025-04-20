@@ -12,7 +12,7 @@
             </foreach>
     </insert>
     <delete id="delete">
-        delete from setmeal_dish
+        delete from dish_flavor
         <where>
             <if test="id!=null &amp;&amp; id!=''">
                 and dish_id=#{id}
