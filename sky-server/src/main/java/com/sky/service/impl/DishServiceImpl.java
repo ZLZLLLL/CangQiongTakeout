@@ -37,7 +37,6 @@ public class DishServiceImpl implements DishService {
     private SetmealDishMapper setmealDishMapper;
 
 
-
     /**
      * 新增菜品及其口味数据
      *
@@ -99,7 +98,7 @@ public class DishServiceImpl implements DishService {
             }
             //2.被套餐关联的商品不能被删除
             Long count = setmealDishMapper.selectById(id);
-            if (count>0){
+            if (count > 0) {
                 //被套餐关联的商品不能被删除
                 throw new DeletionNotAllowedException(MessageConstant.DISH_BE_RELATED_BY_SETMEAL);
             }
@@ -112,6 +111,7 @@ public class DishServiceImpl implements DishService {
 
     /**
      * 起售停售菜品
+     *
      * @param id
      * @param status
      */
@@ -126,12 +126,13 @@ public class DishServiceImpl implements DishService {
 
     /**
      * 更新菜品数据
+     *
      * @param dishDTO
      */
     @Transactional
     public void update(DishDTO dishDTO) {
         Dish dish = new Dish();
-        BeanUtils.copyProperties(dishDTO,dish);
+        BeanUtils.copyProperties(dishDTO, dish);
         dishMapper.update(dish);
 
         //删除原有的口味数据
@@ -147,6 +148,20 @@ public class DishServiceImpl implements DishService {
     }
 
     /**
+     * 根据分类id查询菜品
+     *
+     * @param id
+     * @return
+     */
+    public List<Dish> list(Long id) {
+        Dish dish = Dish.builder()
+                .categoryId(id)
+                .status(StatusConstant.ENABLE)
+                .build();
+        return dishMapper.list(dish);
+    }
+
+    /**
      * 根据菜品id查询数据
      *
      * @param id
@@ -154,9 +169,9 @@ public class DishServiceImpl implements DishService {
      */
     public DishVO selectByDishId(Long id) {
         DishVO dishVO = new DishVO();
-        Dish dish=dishMapper.selectByDishId(id);
-        List<DishFlavor> flavors=dishMapper.selectByFlavorsId(id);
-        BeanUtils.copyProperties(dish,dishVO);
+        Dish dish = dishMapper.selectByDishId(id);
+        List<DishFlavor> flavors = dishMapper.selectByFlavorsId(id);
+        BeanUtils.copyProperties(dish, dishVO);
         dishVO.setFlavors(flavors);
         return dishVO;
     }
