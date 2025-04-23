@@ -11,3 +11,8 @@ sky:
     access-key-id: LTAI5tBke5FcyZtBoP1UB5J5
     access-key-secret: 1kZ7ETqwLH2dmQlwffKfw5zaW4LhFj
     bucket-name: lelehmleadnews
+  redis:
+    host: localhost
+    port: 6379
+    password: 123456
+    database: 3
