@@ -42,10 +42,10 @@ public class ShopController {
      */
     @GetMapping("/status")
     @ApiOperation("获取店铺营业状态")
-    public Result<Long> getShopStatus() {
-        log.info("获取店铺营业状态");
+    public Result<Integer> getShopStatus() {
         ValueOperations valueOperations = redisTemplate.opsForValue();
-        Long shopStatus = (Long) valueOperations.get(Key);
+        Integer shopStatus = (Integer) valueOperations.get(Key);
+        log.info("用户端查询店铺状态:{}",shopStatus==1?"营业中":"打烊中");
         return Result.success(shopStatus);
     }
 

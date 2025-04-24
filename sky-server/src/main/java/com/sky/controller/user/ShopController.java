@@ -3,6 +3,7 @@ package com.sky.controller.user;
 import com.sky.result.Result;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.models.auth.In;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -30,10 +31,10 @@ public class ShopController {
      */
     @GetMapping("/status")
     @ApiOperation("用户端查询店铺状态")
-    public Result<Long> getShopStatus() {
-        log.info("用户端查询店铺状态");
+    public Result<Integer> getShopStatus() {
         ValueOperations valueOperations = redisTemplate.opsForValue();
-        Long shopStatus = (Long) valueOperations.get(Key);
+        Integer shopStatus = (Integer) valueOperations.get(Key);
+        log.info("用户端查询店铺状态:{}",shopStatus==1?"营业中":"打烊中");
         return Result.success(shopStatus);
     }
 }
