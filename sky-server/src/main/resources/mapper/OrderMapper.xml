@@ -89,6 +89,33 @@ VALUES
             </if>
         </where>
     </select>
+    <select id="getOrderSum" resultType="java.lang.Integer">
+        select count(id) from orders
+        <where>
+            <if test="min!=null">
+                and order_time &gt; #{min}
+            </if>
+            <if test="max!=null">
+                and order_time &lt; #{max}
+            </if>
+            <if test="status!=null">
+                and status =#{status}
+            </if>
+        </where>
+    </select>
+    <select id="getSlesTop10" resultType="com.sky.dto.GoodsSalesDTO">
+        select od.name ,sum(od.number) number from orders o,order_detail od
+        where od.order_id=o.id and o.status=5
+        <if test="min!=null">
+            and o.order_time &gt; #{min}
+        </if>
+        <if test="max!=null">
+            and o.order_time &lt; #{max}
+        </if>
+        group by od.name
+        order by number desc
+        limit 0,10
+    </select>
 
 
 </mapper>

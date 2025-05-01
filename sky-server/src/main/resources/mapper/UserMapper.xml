@@ -15,4 +15,18 @@
                 <if test="create_time!=null">create_time=#{createTime}</if>
             </set>
     </insert>
+
+    <select id="getByCreateTime" resultType="java.lang.Integer">
+        select count(*) from user
+        <where>
+            <if test="start!=null">
+                and create_time &gt; #{start}
+            </if>
+            <if test="end!=null">
+                and create_time &lt; #{end}
+            </if>
+        </where>
+    </select>
+
+
 </mapper>
