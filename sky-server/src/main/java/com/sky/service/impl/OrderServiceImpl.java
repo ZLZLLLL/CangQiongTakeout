@@ -1,11 +1,11 @@
 package com.sky.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.xiaoymin.knife4j.core.util.CollectionUtils;
 import com.sky.constant.MessageConstant;
-import com.sky.constant.StatusConstant;
 import com.sky.context.BaseContext;
 import com.sky.dto.*;
 import com.sky.entity.*;
@@ -17,16 +17,19 @@ import com.sky.vo.OrderPaymentVO;
 import com.sky.vo.OrderStatisticsVO;
 import com.sky.vo.OrderSubmitVO;
 import com.sky.vo.OrderVO;
+import com.sky.websocket.WebSocketServer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -47,6 +50,9 @@ public class OrderServiceImpl implements OrderService {
 
     @Autowired
     private AddressBookMapper addressBookMapper;
+
+    @Autowired
+    private WebSocketServer webSocketServer;
 
     /**
      * 用户下单
@@ -154,6 +160,17 @@ public class OrderServiceImpl implements OrderService {
         log.info("调用updateStatus，用于替换微信支付更新数据库状态的问题");
         orderMapper.updateStatus(OrderStatus, OrderPaidStatus, check_out_time, orderNumber);
 
+
+        //订单支付成功以后，使用websocket进行来单提示
+        Map map = new HashMap();
+        map.put("tpye", 1);//1 表示来单提醒 2表示催单
+        map.put("orderId", orderNumber);
+        map.put("content", "订单号" + orderNumber);
+
+        String json = JSON.toJSONString(map);
+        webSocketServer.sendToAllClient(json);
+
+
         return vo;
     }
 
@@ -175,6 +192,7 @@ public class OrderServiceImpl implements OrderService {
                 .payStatus(Orders.PAID)
                 .checkoutTime(LocalDateTime.now())
                 .build();
+
 
         orderMapper.update(orders);
     }
@@ -463,12 +481,13 @@ public class OrderServiceImpl implements OrderService {
 
     /**
      * 完成订单
+     *
      * @param id
      */
     public void complete(Long id) {
         //判断订单是否存在 且 状态为 3 派送中
         Orders orders = orderMapper.getById(id);
-        if (orders==null || !orders.getStatus().equals(Orders.DELIVERY_IN_PROGRESS)){
+        if (orders == null || !orders.getStatus().equals(Orders.DELIVERY_IN_PROGRESS)) {
             throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
         }
 
@@ -478,6 +497,29 @@ public class OrderServiceImpl implements OrderService {
                 .status(Orders.COMPLETED)
                 .build();
         orderMapper.update(orders1);
+    }
+
+    /**
+     * 用户催单
+     *
+     * @param id
+     */
+    public void reminder(Long id) {
+        //查询订单信息
+        Orders orders = orderMapper.getById(id);
+        if (orders != null) {
+
+                Map map = new HashMap();
+                map.put("type", 2);
+                map.put("orderId", id);
+                map.put("content", "订单号" + orders.getNumber());
+
+                String result = JSONObject.toJSONString(map);
+                webSocketServer.sendToAllClient(result);
+        }else {
+            throw new OrderBusinessException(MessageConstant.ORDER_NOT_FOUND);
+        }
+
     }
 
 
